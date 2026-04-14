@@ -8,14 +8,16 @@ using namespace std;
 int sharedData = 10;
 pthread_mutex_t dataMutex = PTHREAD_MUTEX_INITIALIZER;
 
-void* modifySharedData(void*) {
+void* modifySharedData(void* /*arg*/) {
     int before;
     int after;
-    pthread_mutex_lock(&dataMutex);
-    before = sharedData;
-    sharedData += 20;
-    after = sharedData;
-    pthread_mutex_unlock(&dataMutex);
+    {
+        pthread_mutex_lock(&dataMutex);
+        before = sharedData;
+        sharedData += 20;
+        after = sharedData;
+        pthread_mutex_unlock(&dataMutex);
+    }
 
     cout << "【线程】读取到共享数据 sharedData = " << before << endl;
     cout << "【线程】修改后共享数据 sharedData = " << after << endl;
@@ -51,6 +53,11 @@ int main() {
     pthread_mutex_unlock(&dataMutex);
     cout << "【主线程】线程结束后 sharedData = " << mainAfter << endl;
 
-    pthread_mutex_destroy(&dataMutex);
+    status = pthread_mutex_destroy(&dataMutex);
+    if (status != 0) {
+        cerr << "【主线程】错误：pthread_mutex_destroy 失败，原因："
+             << strerror(status) << endl;
+        return 1;
+    }
     return 0;
 }
