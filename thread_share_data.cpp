@@ -8,40 +8,48 @@ using namespace std;
 int sharedData = 10;
 pthread_mutex_t dataMutex = PTHREAD_MUTEX_INITIALIZER;
 
-void* modifySharedData(void* arg) {
-    (void)arg;
+void* modifySharedData(void*) {
+    int before;
+    int after;
     pthread_mutex_lock(&dataMutex);
-    cout << "【线程】读取到共享数据 sharedData = " << sharedData << endl;
+    before = sharedData;
     sharedData += 20;
-    cout << "【线程】修改后共享数据 sharedData = " << sharedData << endl;
+    after = sharedData;
     pthread_mutex_unlock(&dataMutex);
+
+    cout << "【线程】读取到共享数据 sharedData = " << before << endl;
+    cout << "【线程】修改后共享数据 sharedData = " << after << endl;
     return nullptr;
 }
 
 int main() {
     pthread_t tid;
 
+    int mainBefore;
     pthread_mutex_lock(&dataMutex);
-    cout << "【主线程】创建线程前 sharedData = " << sharedData << endl;
+    mainBefore = sharedData;
     pthread_mutex_unlock(&dataMutex);
+    cout << "【主线程】创建线程前 sharedData = " << mainBefore << endl;
 
-    int createResult = pthread_create(&tid, nullptr, modifySharedData, nullptr);
-    if (createResult != 0) {
+    int status = pthread_create(&tid, nullptr, modifySharedData, nullptr);
+    if (status != 0) {
         cerr << "【主线程】错误：pthread_create 失败，原因："
-             << strerror(createResult) << endl;
+             << strerror(status) << endl;
         return 1;
     }
 
-    int joinResult = pthread_join(tid, nullptr);
-    if (joinResult != 0) {
+    status = pthread_join(tid, nullptr);
+    if (status != 0) {
         cerr << "【主线程】错误：pthread_join 失败，原因："
-             << strerror(joinResult) << endl;
+             << strerror(status) << endl;
         return 1;
     }
 
+    int mainAfter;
     pthread_mutex_lock(&dataMutex);
-    cout << "【主线程】线程结束后 sharedData = " << sharedData << endl;
+    mainAfter = sharedData;
     pthread_mutex_unlock(&dataMutex);
+    cout << "【主线程】线程结束后 sharedData = " << mainAfter << endl;
 
     pthread_mutex_destroy(&dataMutex);
     return 0;
