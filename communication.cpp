@@ -1,46 +1,72 @@
 #include <iostream>
 #include <unistd.h>
-#include <signal.h>
+#include <string.h>
 #include <sys/wait.h>
 
-// 信号处理函数
-void signal_handler(int sig) {
-    if (sig == SIGUSR1) {
-        std::cout << "父进程: 接收到了子进程发送的信号 (SIGUSR1)。\n";
-    }
-}
+#define MAX_LINE 80
 
 int main() {
-    // 注册信号处理函数，让父进程能够捕获 SIGUSR1 信号
-    signal(SIGUSR1, signal_handler);
+    int fd[2];
 
-    std::cout << "程序开始运行...\n";
+    /* 创建一个匿名管道 */
+    if (pipe(fd) == -1) {
+        std::cerr << "管道创建失败！\n";
+        return 1;
+    }
 
-    // 创建子进程
     pid_t pid = fork();
 
+    /* 创建子进程成功 */
     if (pid < 0) {
-        // 创建进程失败
-        std::cerr << "创建子进程失败！\n";
+        std::cerr << "进程创建失败！\n";
         return 1;
     } else if (pid == 0) {
-        // 这是子进程
-        std::cout << "子进程: 正在运行，准备向父进程发送信号...\n";
-        sleep(1); // 暂停1秒，模拟某些工作并确保父进程已准备好接收信号
-        
-        // 向父进程发送 SIGUSR1 信号
-        kill(getppid(), SIGUSR1);
-        
-        std::cout << "子进程: 信号已发送，子进程退出。\n";
+        /* 关闭写端 */
+        close(fd[1]);
+
+        /* 休眠一段时间 */
+        sleep(1);
+
+        char buffer[MAX_LINE] = {0};
+        /* 从管道读端读取数据并放入缓冲区 */
+        ssize_t n = read(fd[0], buffer, MAX_LINE - 1);
+        if (n > 0) {
+            buffer[n] = '\0';
+            /* 打印“子进程读取数据成功”提示信息，并输出缓冲区数据 */
+            std::cout << "子进程读取数据成功: " << buffer << "\n";
+        } else {
+            std::cerr << "子进程读取数据失败！\n";
+        }
+
+        /* 关闭读端 */
+        close(fd[0]);
+
+        /* 退出 */
+        _exit(0);
     } else {
-        // 这是父进程
-        std::cout << "父进程: 正在等待子进程发送信号...\n";
-        
-        // 等待子进程执行完毕
-        int status;
-        waitpid(pid, &status, 0); 
-        
-        std::cout << "父进程: 子进程已退出，父进程程序结束。\n";
+        /* 关闭读端 */
+        close(fd[0]);
+
+        const char *msg = "Hello from parent process.";
+        /* 向管道写端写入数据 */
+        if (write(fd[1], msg, strlen(msg)) > 0) {
+            /* 打印“父进程写管道成功” */
+            std::cout << "父进程写管道成功\n";
+        } else {
+            std::cerr << "父进程写管道失败！\n";
+        }
+
+        /* 关闭写管道 */
+        close(fd[1]);
+
+        /* 打印“父进程关闭写管道成功”提示信息 */
+        std::cout << "父进程关闭写管道成功\n";
+
+        /* 休眠一段时间 */
+        sleep(1);
+
+        int status = 0;
+        waitpid(pid, &status, 0);
     }
 
     return 0;
