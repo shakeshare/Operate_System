@@ -60,8 +60,7 @@ int main()
             exit(1);
         }
 
-        char buffer[BUFFERSIZE];
-        memset(buffer, 0, BUFFERSIZE);
+        char buffer[BUFFERSIZE] = {0};
 
         /*输出读数据前缓冲区信息*/
         cout << "【父进程】读数据前缓冲区信息: [" << buffer << "]" << endl;
