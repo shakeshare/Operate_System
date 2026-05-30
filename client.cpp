@@ -79,7 +79,6 @@ int main(int argc, char *argv[])
         }
 
         // 从命名管道读取数据
-        memset(r_msg, 0, sizeof(r_msg));
         int n = read(fd1, r_msg, sizeof(r_msg));
         if (n > 0)
         {
