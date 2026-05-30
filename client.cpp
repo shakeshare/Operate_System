@@ -67,14 +67,13 @@ int main(int argc, char *argv[])
 
     while (1)
     {
-        // 休眠一段时间
-        sleep(2);
-
-        // 此处打开的就是刚刚创建的客户端管道cfifo，用来获取服务端的返回消息
-        fd1 = open("/tmp/cfifo", O_RDONLY | O_NONBLOCK);
+        // 此处阻塞式打开管道（去掉原来的 O_NONBLOCK 和 sleep）
+        // 这样客户端会在这里乖乖死等，直到服务器真正准备好并写入管道，杜绝时间差导致的数据丢失
+        fd1 = open("/tmp/cfifo", O_RDONLY);
         if (fd1 < 0)
         {
             cout << "命名管道cfifo尚未创建或者打开失败，请稍后" << endl;
+            sleep(1);
             continue;
         }
 
