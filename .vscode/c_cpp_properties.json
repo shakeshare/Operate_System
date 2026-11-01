@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "name": "Linux Kernel Module",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu11",
+            "includePath": [
+                "${workspaceFolder}/experiments/06_kernel_module/src",
+                "/lib/modules/6.6.87.2-microsoft-standard-WSL2/build/include",
+                "/lib/modules/6.6.87.2-microsoft-standard-WSL2/build/arch/x86/include",
+                "/lib/modules/6.6.87.2-microsoft-standard-WSL2/build/arch/x86/include/generated",
+                "/lib/modules/6.6.87.2-microsoft-standard-WSL2/build/include/generated"
+            ],
+            "defines": [
+                "__KERNEL__",
+                "MODULE"
+            ],
+            "intelliSenseMode": "linux-gcc-x64"
+        }
+    ],
+    "version": 4
+}

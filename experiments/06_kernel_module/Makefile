@@ -3,6 +3,7 @@ CFLAGS=-std=c11
 
 ifneq  ($(KERNELRELEASE),)
 obj-m:=kernel_module.o
+kernel_module-objs := src/kernel_module.o
 else
 KDIR := /lib/modules/$(shell uname -r)/build
 PWD:=$(shell pwd)

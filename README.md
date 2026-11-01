@@ -10,5 +10,6 @@
 | 4 | 命名管道通信 | [04_named_pipe](experiments/04_named_pipe/) |
 | 5 | 客户端/服务器 FIFO 通信 | [05_client_server_fifo](experiments/05_client_server_fifo/) |
 | 6 | Linux 内核模块 | [06_kernel_module](experiments/06_kernel_module/) |
+| 7 | Deferred work 延迟工作 | [07](experiments/07/) |
 
 C++ 实验可以直接在 VS Code 中打开 `src/` 下的源文件，使用默认构建任务；生成的程序会放入对应实验的 `bin/`。
